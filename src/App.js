@@ -3,6 +3,7 @@ import './App.css';
 import Timer from './components/Timer';
 import TimeSettings from './components/TimeSettings';
 import useInterval from './components/helper/helper';
+import Reset from './components/Reset';
 
 function App() {
   const [lengths, setLengths] = useState({ break: 5, session: 25 });
@@ -19,28 +20,16 @@ function App() {
     counting ? 1000 : null
   );
 
-  useEffect(() => {
-    if (secondsLeft === 0) {
-      beep();
-      type === 'break' && reset();
-
-      if (type === 'session') {
-        setType('break');
-        setSecondsLeft(lengths.break * 60);
-      }
-    }
-  }, [secondsLeft]);
-
   // Plays the audio when timer has has reached 00:00
   const beep = () => {
     // Play audio
     // Show loading animation.
     alarmSound.current.load();
-    let playPromise = alarmSound.current.play();
+    const playPromise = alarmSound.current.play();
 
     if (playPromise !== undefined) {
       playPromise
-        .then((_) => {
+        .then(() => {
           alarmSound.current.addEventListener(
             'ended',
             () => (alarmSound.current.currentTime = 0)
@@ -62,6 +51,18 @@ function App() {
     setType('session');
   };
 
+  useEffect(() => {
+    if (secondsLeft === 0) {
+      beep();
+      type === 'break' && reset();
+
+      if (type === 'session') {
+        setType('break');
+        setSecondsLeft(lengths.break * 60);
+      }
+    }
+  }, [secondsLeft, type, lengths.break]);
+
   // Toggle start stop
   const startStop = () => setCounting(!counting);
 
@@ -75,15 +76,19 @@ function App() {
       [updatedType]: newValue,
     });
     type === updatedType && setSecondsLeft(newValue * 60);
-
-    console.log('old', lengths);
   };
-
-  console.log('new', lengths);
 
   return (
     <div className='App'>
       <div className='container'>
+        <Timer
+          lengths={lengths}
+          type={type}
+          counting={counting}
+          startStop={startStop}
+          reset={reset}
+          seconds={secondsLeft}
+        />
         <TimeSettings
           type='break'
           length={lengths.break}
@@ -94,14 +99,11 @@ function App() {
           length={lengths.session}
           callback={updateTimeLengths}
         />
-        <Timer
-          type={type}
-          counting={counting}
-          startStop={startStop}
-          reset={reset}
-          seconds={secondsLeft}
-        />
-        <audio ref={alarmSound} id='beep' src='./audio/alarm.wav'></audio>
+        <Reset reset={reset} />
+
+        <audio ref={alarmSound} id='beep' src='./audio/alarm.wav'>
+          <track kind='captions'></track>
+        </audio>
       </div>
     </div>
   );

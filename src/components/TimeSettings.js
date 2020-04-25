@@ -1,30 +1,38 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
-const TimeSettings = (props) => {
-  let label = props.type.charAt(0).toUpperCase() + props.type.slice(1);
-  // if(props.type == 'session')
-  //   console.log(`${label} length in child: ${props.length}`);
+const TimeSettings = ({ type, callback, length }) => {
+  const label = type.charAt(0).toUpperCase() + type.slice(1);
+
   return (
-    <div className='settings'>
-      <p id={`${props.type}-label`}>{`${label} Length`}</p>
-      <div className='row'>
+    <div className="settings">
+      <p className="label" id={`${type}-label`}>{`${label} Length`}</p>
+      <div className="row">
         {' '}
         <button
-          onClick={() => props.callback(props.type, 1)}
-          id={`${props.type}-increment`}
+          type="button"
+          onClick={() => callback(type, 1)}
+          id={`${type}-increment`}
         >
           +
         </button>
-        <p id={`${props.type}-length`}>{props.length}</p>
+        <p id={`${type}-length`}>{length}</p>
         <button
-          onClick={() => props.callback(props.type, -1)}
-          id={`${props.type}-decrement`}
+          type="button"
+          onClick={() => callback(type, -1)}
+          id={`${type}-decrement`}
         >
           -
         </button>
       </div>
     </div>
   );
+};
+
+TimeSettings.propTypes = {
+  type: PropTypes.string,
+  length: PropTypes.number,
+  callback: PropTypes.func,
 };
 
 export default TimeSettings;
